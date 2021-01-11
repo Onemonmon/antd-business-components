@@ -20,7 +20,6 @@ interface IProps {
   loadTopData?: () => Promise<LoadDataRes>; // 加载第一级数据
   prefixCls?: string;
   className?: string;
-  style?: React.CSSProperties;
   [propName: string]: any;
 }
 
@@ -94,15 +93,13 @@ const AreaCascader: React.FC<IProps> = props => {
     }
   }, [value, topDataInit, fillDataInit, needFillData]);
   return (
-    <div
-      className={classnames(className, `${prefixCls}-wrapper`)}
-      style={style}
-    >
+    <div style={style}>
       <Cascader
         loadData={handleLoadData}
         value={value}
         options={newOptions}
         placeholder="请选择"
+        className={classnames(className, `${prefixCls}-wrapper`)}
         {...rest}
       />
     </div>
@@ -115,7 +112,6 @@ AreaCascader.defaultProps = {
   needFillData: false,
   prefixCls: `${CONTRIBUTOR}-cascader`,
   className: '',
-  style: {},
 };
 
 export default AreaCascader;

@@ -33,5 +33,4 @@ group:
 | loadTopData              | 用于动态加载第一级选项，优先级高于 options | () => Promise\<LoadDataRes>                       | -            |
 | prefixCls                | 自定义类名前缀                             | string                                            | one-cascader |
 | className                | 自定义类名                                 | string                                            | -            |
-| style                    | 自定义样式                                 | CSSProperties                                     | {}           |
 | 其他 Cascader 的原生属性 |                                            |                                                   |              |
