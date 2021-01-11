@@ -19,17 +19,19 @@ group:
 ## 代码示例
 
 <code src="./examples/load-data.tsx" />
+<code src="./examples/load-top-data.tsx" />
 <code src="./examples/load-data-init.tsx" />
 
 ## API
 
-| 参数                   | 说明                                          | 类型     | 默认值   |
-| ---------------------- | --------------------------------------------- | -------- | -------- |
-| selectType             | Select 的类型                                 | -        | request  |
-| requestFunction        | 异步请求数据用的请求函数                      | function | () => {} |
-| onChange               | 接收 Option 选择时的回调函数                  | function | () => {} |
-| staticOptionsArray     | 静态数据源                                    | array    | []       |
-| transItem              | 用来处理数据源中的每条数据，传递数据给 Option | function | () => {} |
-| placeholder            | placeholder                                   | string   | 请选择   |
-| requestPayload         | 要传递给 requestFunction 的额外参数           | object   | {}       |
-| 其他 Select 的原生属性 |                                               |          |          |
+| 参数                     | 说明                                       | 类型                                              | 默认值       |
+| ------------------------ | ------------------------------------------ | ------------------------------------------------- | ------------ |
+| value                    | 可选项数据源                               | string[] \| number[]                              | []           |
+| options                  | 异步请求数据用的请求函数                   | function                                          | []           |
+| needFillData             | 是否需要回填数据                           | boolean                                           | false        |
+| loadData                 | 用于动态加载选项                           | (code: string \| number) => Promise\<LoadDataRes> | -            |
+| loadTopData              | 用于动态加载第一级选项，优先级高于 options | () => Promise\<LoadDataRes>                       | -            |
+| prefixCls                | 自定义类名前缀                             | string                                            | one-cascader |
+| className                | 自定义类名                                 | string                                            | -            |
+| style                    | 自定义样式                                 | CSSProperties                                     | {}           |
+| 其他 Cascader 的原生属性 |                                            |                                                   |              |

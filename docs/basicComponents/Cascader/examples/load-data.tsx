@@ -33,18 +33,15 @@ const options = [
 const handleFinish = (values: any) => {
   alert(JSON.stringify(values));
 };
-export default () => (
-  <Form
-    onFinish={handleFinish}
-    initialValues={{
-      area2: ['zhejiang', 'zhejiang1', 'zhejiang2', 'zhejiang3'],
-    }}
-  >
+const Demo = () => (
+  <Form onFinish={handleFinish}>
     <Form.Item label="区域选择" name="area2">
-      <Cascader options={options} loadData={onLoadData} needFillData={true} />
+      <Cascader options={options} loadData={onLoadData} />
     </Form.Item>
     <Form.Item>
       <Button htmlType="submit">提交</Button>
     </Form.Item>
   </Form>
 );
+
+export default Demo;

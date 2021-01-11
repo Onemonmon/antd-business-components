@@ -1,5 +1,5 @@
 /**
- * 关键字：授权区域选择
+ * 关键字：级联选择
  * 新增人：徐友万
  * 完善中
  */
@@ -36,7 +36,7 @@ const AreaCascader: React.FC<IProps> = props => {
     style,
     ...rest
   } = props;
-  //
+  // 使用ref保存当前加载的value索引
   const ref = useRef<number>(0);
   // 数据回填初始化
   const [fillDataInit, setFillDataInit] = useState<boolean>(false);
@@ -102,6 +102,7 @@ const AreaCascader: React.FC<IProps> = props => {
         loadData={handleLoadData}
         value={value}
         options={newOptions}
+        placeholder="请选择"
         {...rest}
       />
     </div>

@@ -1,6 +1,6 @@
 /**
-title: 带默认值动态加载数据
-desc: 使用 loadData、needFillData 实现动态加载选项，并且能初始化默认值。
+title: 动态加载数据
+desc: 使用 loadData，loadTopData 实现动态加载选项。
 */
 
 import React from 'react';
@@ -24,6 +24,7 @@ const onLoadData = (code: string | number) => {
   });
 };
 const onLoadTopData = () => {
+  index = 0;
   return fakeRequest({
     value: [
       {
@@ -38,18 +39,9 @@ const handleFinish = (values: any) => {
   alert(JSON.stringify(values));
 };
 const Demo = () => (
-  <Form
-    onFinish={handleFinish}
-    initialValues={{
-      area3: ['zhejiang', 'zhejiang1', 'zhejiang2', 'zhejiang3'],
-    }}
-  >
-    <Form.Item label="区域选择" name="area3">
-      <Cascader
-        loadData={onLoadData}
-        loadTopData={onLoadTopData}
-        needFillData={true}
-      />
+  <Form onFinish={handleFinish}>
+    <Form.Item label="区域选择" name="area1">
+      <Cascader loadTopData={onLoadTopData} loadData={onLoadData} />
     </Form.Item>
     <Form.Item>
       <Button htmlType="submit">提交</Button>
