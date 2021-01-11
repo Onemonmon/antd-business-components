@@ -3,10 +3,10 @@
  * 新增人：徐友万
  * 完善中
  */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Cascader } from 'antd';
 import classnames from 'classnames';
-import { CascaderOptionType, CascaderProps } from 'antd/lib/cascader';
+import { CascaderOptionType } from 'antd/lib/cascader';
 
 // 获取数据的接口返回类型
 export type LoadDataRes = {
@@ -24,7 +24,6 @@ interface IProps {
   [propName: string]: any;
 }
 
-let index = 0;
 const AreaCascader: React.FC<IProps> = props => {
   const {
     value = [],
@@ -37,35 +36,39 @@ const AreaCascader: React.FC<IProps> = props => {
     style,
     ...rest
   } = props;
-  // 第一级节点初始化
-  const [topDataInit, setTopDataInit] = useState<boolean>(false);
+  //
+  const ref = useRef<number>(0);
   // 数据回填初始化
   const [fillDataInit, setFillDataInit] = useState<boolean>(false);
   // 区域选择树节点
   const [newOptions, setNewOptions] = useState<CascaderOptionType[]>(options);
+  // 第一级节点初始化
+  const [topDataInit, setTopDataInit] = useState<boolean>(options.length > 0);
   // 异步加载节点数据
-  const handleLoadData = async (selectedOptions: CascaderOptionType[]) => {
-    const targetOption = selectedOptions[selectedOptions.length - 1];
-    targetOption.loading = true;
-    if (loadData) {
-      const res = await loadData(targetOption.value);
-      targetOption.loading = false;
-      const data = res.value;
-      if (data) {
-        const newData = data;
-        targetOption.children = newData;
-        setNewOptions([...newOptions]);
-        return newData;
+  const handleLoadData = async (selectedOptions?: CascaderOptionType[]) => {
+    if (selectedOptions) {
+      const targetOption = selectedOptions[selectedOptions.length - 1];
+      targetOption.loading = true;
+      if (loadData) {
+        const res = await loadData(targetOption.value);
+        targetOption.loading = false;
+        const data = res.value;
+        if (data) {
+          targetOption.children = data;
+          setNewOptions([...newOptions]);
+          return data;
+        }
       }
     }
-    return [];
   };
   // 异步数据回填
   const handleFillData = async (parentOptions: CascaderOptionType[]) => {
-    const data = parentOptions.filter(option => option.value === value[index]);
+    const data = parentOptions.filter(
+      option => option.value === value[ref.current],
+    );
     const res = await handleLoadData(data);
-    index += 1;
-    if (res && index !== value.length - 1) {
+    ref.current += 1;
+    if (res && ref.current !== value.length - 1) {
       handleFillData(res);
     }
   };
@@ -76,13 +79,11 @@ const AreaCascader: React.FC<IProps> = props => {
         const res = await loadTopData();
         const data = res.value;
         if (data && data.length) {
-          const newData = data;
-          setNewOptions(newData);
+          setNewOptions(data);
           setTopDataInit(true);
         }
       }
     };
-    index = 0;
     getTopData();
   }, []);
   // 需要回填数据 递归创建树结构

@@ -4,7 +4,7 @@ hero:
   desc: antd-business-components 是一个基于 ant.design 开发的业务组件库
   actions:
     - text: Getting Started
-      link: /components
+      link: /basic-components
 features:
   - icon: https://gw.alipayobjects.com/zos/bmw-prod/881dc458-f20b-407b-947a-95104b5ec82b/k79dm8ih_w144_h144.png
     title: Feature 1

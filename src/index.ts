@@ -1,1 +1,1 @@
-export { default as Cascader } from './cascader';
+export { default as Cascader } from './components/cascader';
