@@ -1,24 +1,29 @@
 /**
-title: 带默认值动态加载数据
-desc: 使用 loadData、needFillData 实现动态加载选项，并且能初始化默认值。
+title: 基础使用
+desc: 渲染规格列表，并根据规格组校验库存是否有效。
 */
 
 import React from 'react';
 import { SkuChoose } from 'antd-business-components';
 import 'antd/dist/antd.css';
 
-type SpecType = { specName: string; specValueList: string[] };
+type SpecType = { specName: string; specId: string; specValueList: string[] };
 type SkuType = {
-  id: string;
+  pos: string;
   specList: string[];
   stockNum?: number;
   price?: number;
 };
 // 规格列表
 const specList: SpecType[] = [
-  { specName: '颜色', specValueList: ['红色', '黄色', '蓝色', '绿色'] },
-  { specName: '尺寸', specValueList: ['小', '中', '大'] },
-  { specName: '材质', specValueList: ['纯棉', '90%棉'] },
+  {
+    specName: '颜色',
+    specId: '0',
+    specValueList: ['红色', '黄色', '蓝色', '绿色'],
+  },
+  { specName: '尺寸', specId: '1', specValueList: ['小', '中', '大'] },
+  { specName: '材质', specId: '2', specValueList: ['纯棉', '90%棉'] },
+  { specName: '批发地', specId: '3', specValueList: ['广东', '福建'] },
 ];
 
 const createSkuList = (specList: SpecType[]) => {
@@ -38,7 +43,7 @@ const combSpec = (spec1: SpecType | SkuType[], spec2: SpecType) => {
     spec1.forEach(n => {
       spec2.specValueList.forEach((m, i1) => {
         const item: SkuType = {
-          id: n.id + '' + i1,
+          pos: n.pos + '-' + i1,
           specList: [...n.specList, m],
           stockNum: Math.floor(Math.random() * 10),
           price: Math.floor((Math.random() + 1) * 100),
@@ -50,7 +55,7 @@ const combSpec = (spec1: SpecType | SkuType[], spec2: SpecType) => {
     spec1.specValueList.forEach((n, i0) => {
       spec2.specValueList.forEach((m, i1) => {
         const item: SkuType = {
-          id: i0 + '' + i1,
+          pos: i0 + '-' + i1,
           specList: [n, m],
         };
         res.push(item);
