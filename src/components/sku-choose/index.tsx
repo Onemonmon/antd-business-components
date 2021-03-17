@@ -6,7 +6,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Tag } from 'antd';
 import classnames from 'classnames';
-import { initial } from 'lodash';
 
 const { CheckableTag } = Tag;
 type SpecType = { specName: string; specValueList: string[] };
@@ -61,10 +60,10 @@ const setSpecDisabled = (
     skuList,
     limitStockNum,
   );
-  console.log('已选组合：', selectedSpecs);
-  console.log('总的组合：', specs);
-  console.log(`为第${index + 1}个规格设置disabled`);
-  console.log('规格组库存为0的有：', emptyStockSkus);
+  // console.log('已选组合：', selectedSpecs);
+  // console.log('总的组合：', specs);
+  // console.log(`为第${index + 1}个规格设置disabled`);
+  // console.log('规格组库存为0的有：', emptyStockSkus);
   emptyStockSkus.forEach(n => {
     specs[index].disabled.push(Number(n.pos.split('-')[index]));
   });
