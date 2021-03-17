@@ -45,18 +45,17 @@ const AreaCascader: React.FC<IProps> = props => {
   const [topDataInit, setTopDataInit] = useState<boolean>(options.length > 0);
   // 异步加载节点数据
   const handleLoadData = async (selectedOptions?: CascaderOptionType[]) => {
-    if (selectedOptions) {
-      const targetOption = selectedOptions[selectedOptions.length - 1];
-      targetOption.loading = true;
-      if (loadData) {
-        const res = await loadData(targetOption.value);
-        targetOption.loading = false;
-        const data = res.value;
-        if (data) {
-          targetOption.children = data;
-          setNewOptions([...newOptions]);
-          return data;
-        }
+    if (!selectedOptions || !selectedOptions.length) return;
+    const targetOption = selectedOptions[selectedOptions.length - 1];
+    targetOption.loading = true;
+    if (loadData) {
+      const res = await loadData(targetOption.value);
+      targetOption.loading = false;
+      const data = res.value;
+      if (data) {
+        targetOption.children = data;
+        setNewOptions([...newOptions]);
+        return data;
       }
     }
   };
@@ -67,9 +66,7 @@ const AreaCascader: React.FC<IProps> = props => {
     );
     const res = await handleLoadData(data);
     ref.current += 1;
-    if (res && ref.current !== value.length - 1) {
-      handleFillData(res);
-    }
+    res && ref.current !== value.length - 1 && handleFillData(res);
   };
   // 初始化第一级树节点
   useEffect(() => {
@@ -87,6 +84,7 @@ const AreaCascader: React.FC<IProps> = props => {
   }, []);
   // 需要回填数据 递归创建树结构
   useEffect(() => {
+    // 第一级节点加载完 未回填过数据 有初始值 需要回填
     if (topDataInit && !fillDataInit && value.length && needFillData) {
       setFillDataInit(true);
       handleFillData(newOptions);

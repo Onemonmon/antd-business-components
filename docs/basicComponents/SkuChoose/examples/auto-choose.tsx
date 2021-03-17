@@ -1,6 +1,6 @@
 /**
-title: 基础使用
-desc: 渲染规格列表，并根据规格组校验库存是否有效。
+title: 自动选择
+desc: 自动选择规格组列表中第一个库存满足条件的规格组
 */
 
 import React from 'react';
@@ -79,7 +79,7 @@ const combSpecAndSku = (skus: SkuType[], spec: SpecType) => {
 const skuList = createSkuList(specList);
 
 const Demo = () => (
-  <SkuChoose specList={specList} skuList={skuList}></SkuChoose>
+  <SkuChoose specList={specList} skuList={skuList} autoChoose></SkuChoose>
 );
 
 export default Demo;

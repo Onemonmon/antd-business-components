@@ -8,32 +8,33 @@ import { Form, Button } from 'antd';
 import { Cascader } from 'antd-business-components';
 import 'antd/dist/antd.css';
 
-let index = 0;
 const fakeRequest = (data: any) =>
   new Promise(res => setTimeout(() => res(data), 500));
-const onLoadData = (code: string | number) => {
-  index++;
-  return fakeRequest({
+const onLoadData = (code: string | number) =>
+  fakeRequest({
     value: [
       {
-        value: 'zhejiang' + index,
-        label: '浙江' + index,
-        isLeaf: index >= 3 ? true : false,
+        value: 'quanzhou',
+        label: '泉州',
+        isLeaf: true,
+      },
+      {
+        value: 'xiamen',
+        label: '厦门',
+        isLeaf: true,
       },
     ],
   });
-};
-const onLoadTopData = () => {
-  return fakeRequest({
+const onLoadTopData = () =>
+  fakeRequest({
     value: [
       {
-        value: 'zhejiang',
-        label: '浙江',
+        value: 'fujian',
+        label: '福建',
         isLeaf: false,
       },
     ],
   });
-};
 const handleFinish = (values: any) => {
   alert(JSON.stringify(values));
 };
@@ -41,7 +42,7 @@ const Demo = () => (
   <Form
     onFinish={handleFinish}
     initialValues={{
-      area3: ['zhejiang', 'zhejiang1', 'zhejiang2', 'zhejiang3'],
+      area3: ['fujian', 'quanzhou'],
     }}
   >
     <Form.Item label="区域选择" name="area3">

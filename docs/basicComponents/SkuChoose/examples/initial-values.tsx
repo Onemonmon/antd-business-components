@@ -1,6 +1,6 @@
 /**
-title: 基础使用
-desc: 渲染规格列表，并根据规格组校验库存是否有效。
+title: 回填初始值
+desc: 回填初始值
 */
 
 import React from 'react';
@@ -78,8 +78,15 @@ const combSpecAndSku = (skus: SkuType[], spec: SpecType) => {
 // 规格组列表
 const skuList = createSkuList(specList);
 
+const _skuList = skuList.filter(n => n.stockNum);
+const index = Math.floor(Math.random() * _skuList.length);
+
 const Demo = () => (
-  <SkuChoose specList={specList} skuList={skuList}></SkuChoose>
+  <SkuChoose
+    specList={specList}
+    skuList={skuList}
+    initialValues={_skuList[index]}
+  ></SkuChoose>
 );
 
 export default Demo;
