@@ -1,7 +1,7 @@
 ---
-title: Cascader
 group:
-  title: Cascader 级联选择
+  title: 组件
+  path: /
 ---
 
 # Cascader 级联选择

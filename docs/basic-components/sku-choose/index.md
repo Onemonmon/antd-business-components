@@ -1,7 +1,7 @@
 ---
-title: SkuChoose
 group:
-  title: SkuChoose 规格选择
+  title: 组件
+  path: /
 ---
 
 # SkuChoose 规格选择
