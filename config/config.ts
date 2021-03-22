@@ -15,5 +15,9 @@ export default {
       title: 'GitHub',
       path: 'https://github.com/Onemonmon',
     },
+    {
+      title: 'Dumi',
+      path: 'https://d.umijs.org/zh-CN/config',
+    },
   ],
 };
