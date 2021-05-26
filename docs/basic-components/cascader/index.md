@@ -26,11 +26,9 @@ group:
 
 | 参数                | 说明                     | 类型                            | 默认值       |
 | ------------------- | ------------------------ | ------------------------------- | ------------ |
-| value               | 可选项数据源             | string[] \| number[]            | []           |
 | options             | 异步请求数据用的请求函数 | CascaderOptionType              | []           |
 | needFillData        | 是否需要回填数据         | boolean                         | false        |
 | loadData            | 用于动态加载选项         | (code: string\|number)=>Promise | -            |
 | loadTopData         | 用于动态加载第一级选项   | () => Promise                   | -            |
 | prefixCls           | 自定义类名前缀           | string                          | one-cascader |
-| className           | 自定义类名               | string                          | -            |
 | Cascader 的原生属性 |                          |                                 |              |

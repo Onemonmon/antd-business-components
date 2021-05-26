@@ -3,42 +3,40 @@
  * 新增人：徐友万
  * 完善中
  */
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Cascader } from 'antd';
-import classnames from 'classnames';
+import classNames from 'classnames';
 import { CascaderOptionType } from 'antd/lib/cascader';
+import React from 'react';
 
 // 获取数据的接口返回类型
 export type LoadDataRes = {
-  value?: CascaderOptionType[];
+  value: CascaderOptionType[];
 };
 interface IProps {
-  value: string[] | number[]; // 值
   options?: CascaderOptionType[]; // 树结构
   needFillData?: boolean; // 是否需要回填数据
   loadData?: (code?: string | number) => Promise<LoadDataRes>; // 异步加载数据
-  loadTopData?: () => Promise<LoadDataRes>; // 加载第一级数据
-  prefixCls?: string;
-  className?: string;
+  loadTopData?: () => Promise<LoadDataRes>; // 加载顶层数据
   [propName: string]: any;
 }
 
 const AreaCascader: React.FC<IProps> = props => {
   const {
-    value = [],
     options = [],
     needFillData,
+    value = [],
     loadTopData,
     loadData,
-    prefixCls,
+    prefixCls = `${CONTRIBUTOR}-cascader`,
     className,
-    style,
+    children,
     ...rest
   } = props;
   // 使用ref保存当前加载的value索引
   const ref = useRef<number>(0);
-  // 数据回填初始化
-  const [fillDataInit, setFillDataInit] = useState<boolean>(false);
+  // 数据回填初始化是否完成
+  const fillDataInitRef = useRef<boolean>(false);
   // 区域选择树节点
   const [newOptions, setNewOptions] = useState<CascaderOptionType[]>(options);
   // 第一级节点初始化
@@ -85,31 +83,26 @@ const AreaCascader: React.FC<IProps> = props => {
   // 需要回填数据 递归创建树结构
   useEffect(() => {
     // 第一级节点加载完 未回填过数据 有初始值 需要回填
-    if (topDataInit && !fillDataInit && value.length && needFillData) {
-      setFillDataInit(true);
+    if (
+      topDataInit &&
+      !fillDataInitRef.current &&
+      value.length &&
+      needFillData
+    ) {
+      fillDataInitRef.current = true;
       handleFillData(newOptions);
     }
-  }, [value, topDataInit, fillDataInit, needFillData]);
+  }, [value, topDataInit, needFillData]);
   return (
-    <div style={style}>
-      <Cascader
-        loadData={handleLoadData}
-        value={value}
-        options={newOptions}
-        placeholder="请选择"
-        className={classnames(className, `${prefixCls}-wrapper`)}
-        {...rest}
-      />
-    </div>
+    <Cascader
+      value={value}
+      loadData={handleLoadData}
+      options={newOptions}
+      placeholder="请选择"
+      className={classNames(className, `${prefixCls}-wrapper`)}
+      {...rest}
+    />
   );
-};
-
-AreaCascader.defaultProps = {
-  value: [],
-  options: [],
-  needFillData: false,
-  prefixCls: `${CONTRIBUTOR}-cascader`,
-  className: '',
 };
 
 export default AreaCascader;
