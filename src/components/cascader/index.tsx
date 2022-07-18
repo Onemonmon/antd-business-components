@@ -3,11 +3,17 @@
  * 新增人：徐友万
  * 完善中
  */
-import { useEffect, useRef, useState } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import { Cascader } from 'antd';
 import classNames from 'classnames';
-import { CascaderOptionType } from 'antd/lib/cascader';
 import React from 'react';
+
+type CascaderOptionType = {
+  label: ReactNode;
+  value?: string | number | null;
+  loading?: boolean;
+  children?: CascaderOptionType[];
+};
 
 // 获取数据的接口返回类型
 export type LoadDataRes = {
@@ -21,7 +27,7 @@ interface IProps {
   [propName: string]: any;
 }
 
-const AreaCascader: React.FC<IProps> = props => {
+const AreaCascader: React.FC<IProps> = (props) => {
   const {
     options = [],
     needFillData,
@@ -59,9 +65,7 @@ const AreaCascader: React.FC<IProps> = props => {
   };
   // 异步数据回填
   const handleFillData = async (parentOptions: CascaderOptionType[]) => {
-    const data = parentOptions.filter(
-      option => option.value === value[ref.current],
-    );
+    const data = parentOptions.filter((option) => option.value === value[ref.current]);
     const res = await handleLoadData(data);
     ref.current += 1;
     res && ref.current !== value.length - 1 && handleFillData(res);
@@ -83,12 +87,7 @@ const AreaCascader: React.FC<IProps> = props => {
   // 需要回填数据 递归创建树结构
   useEffect(() => {
     // 第一级节点加载完 未回填过数据 有初始值 需要回填
-    if (
-      topDataInit &&
-      !fillDataInitRef.current &&
-      value.length &&
-      needFillData
-    ) {
+    if (topDataInit && !fillDataInitRef.current && value.length && needFillData) {
       fillDataInitRef.current = true;
       handleFillData(newOptions);
     }

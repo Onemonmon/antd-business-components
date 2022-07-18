@@ -1,16 +1,14 @@
 import { defineConfig } from 'dumi';
-import customizedConfig from './config/config';
 
 export default defineConfig({
-  title: 'antd-business-components',
+  title: 'test',
   favicon:
     'https://user-images.githubusercontent.com/9554297/83762004-a0761b00-a6a9-11ea-83b4-9c8ff721d4b8.png',
-  logo:
-    'https://user-images.githubusercontent.com/9554297/83762004-a0761b00-a6a9-11ea-83b4-9c8ff721d4b8.png',
+  logo: 'https://user-images.githubusercontent.com/9554297/83762004-a0761b00-a6a9-11ea-83b4-9c8ff721d4b8.png',
   outputPath: 'docs-dist',
   mode: 'site',
-  ...customizedConfig,
   define: {
-    CONTRIBUTOR: 'one',
+    CONTRIBUTOR: 'onemonmon',
   },
+  // more config: https://d.umijs.org/config
 });
