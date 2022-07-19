@@ -53,7 +53,7 @@ const AreaCascader: React.FC<IProps> = (props) => {
     const targetOption = selectedOptions[selectedOptions.length - 1];
     targetOption.loading = true;
     if (loadData) {
-      const res = await loadData(targetOption.value);
+      const res = await loadData(targetOption.value!);
       targetOption.loading = false;
       const data = res.value;
       if (data) {

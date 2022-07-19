@@ -1,104 +1,66 @@
 /**
  * 大文件上传、断点续传
  */
-import React, { useState } from 'react';
-import { Button, Input, message, Progress, Table, Upload as AntdUpload } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Button, message, Progress, Table, Upload as AntdUpload, Space } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import { RcFile } from 'antd/lib/upload';
-import SparkMD5 from 'spark-md5';
 import request from '../../utils/request';
 import Schedule from './request-amount-limit';
+import {
+  clearUploadedFiles,
+  getFileInfo,
+  getUploadedFiles,
+  mergeChunks,
+  removeFile,
+  splitFileToChunks,
+} from './index';
+import type { IUploadProps, FileChunkType } from './type';
+import './index.css';
 
-interface IProps {
-  size: number; // 切片大小，默认10KB
-}
-type FileChunkType = {
-  chunk: Blob;
-  hash: string;
-  index: number;
-  size: number;
-  percentage: number;
-};
 const SIZE = 10240000; // 10MB
 
 // 保存上传请求的列表
 const requestList: { key: string; xhr: any }[] = [];
 // 限制请求并发数
 const requsetSchedule = new Schedule(6);
-const Upload = ({ size = SIZE }: IProps) => {
+
+const Upload = ({ size = SIZE }: IUploadProps) => {
+  // 进度条表格
+  const columns = [
+    {
+      title: '文件名称',
+      dataIndex: 'filename',
+      width: 200,
+    },
+    {
+      title: '文件切片hash',
+      dataIndex: 'hash',
+      render: (hash: string, record: FileChunkType) => hash + '-' + record.index,
+      width: 200,
+    },
+    {
+      title: '大小（MB）',
+      dataIndex: 'size',
+      render: (size: number) => parseInt(String(size / 1000000)),
+      width: 100,
+    },
+    {
+      title: '进度',
+      dataIndex: 'percentage',
+      render: (percentage: number) => <Progress percent={percentage} />,
+      width: 200,
+    },
+  ];
   // 切片
   const [fileChunks, setFileChunks] = useState<FileChunkType[]>([]);
+  // 已上传的文件
+  const [fileList, setFileList] = useState<any[]>([]);
   // 阻止默认上传行为，在这里对大文件进行分割
   const beforeUpload = async (file: RcFile) => {
-    await splitFileToChunks(file);
+    const res = await splitFileToChunks(file, size);
+    setFileChunks(res);
     return Promise.resolve();
-  };
-  // 分割大文件
-  const splitFileToChunks = async (file: RcFile, splitSize = size) => {
-    const fileSize = file.size;
-    const fileChunks: FileChunkType[] = [];
-    let curSize = 0;
-    while (curSize < fileSize) {
-      // Blob.prototype.slice 对文件进行切片
-      const chunk = file.slice(curSize, curSize + splitSize);
-      fileChunks.push({
-        chunk,
-        hash: '',
-        index: 0,
-        size: chunk.size,
-        percentage: 0,
-      });
-      curSize += splitSize;
-    }
-    // 获取文件hash值
-    const hash = await getFileHash(fileChunks);
-    console.log(hash);
-
-    // 文件扩展名
-    const ext = file.name.split('.')[file.name.split('.').length - 1];
-    // 判断服务端hash值是否存在
-    const res = await validHash(hash, ext);
-    if (!res.shouldUpload) {
-      // 秒传，假弹框
-      message.success('上传成功');
-      return Promise.reject();
-    }
-    fileChunks.forEach((n, i) => {
-      n.hash = hash;
-      n.index = i;
-      n.percentage = res.uploadedChunks.includes(hash + '-' + i) ? 100 : 0;
-    });
-    setFileChunks(fileChunks);
-  };
-  const validHash = async (hash: string, ext: string) => {
-    const res = await request({
-      url: 'http://localhost:3000/valid',
-      data: JSON.stringify({ hash, ext }),
-      headers: { 'content-type': 'application/json' },
-    });
-    if (res.code === 200) {
-      return res.data;
-    }
-  };
-  // 计算切片的hash
-  const getFileHash = async (fileChunks: FileChunkType[]) => {
-    const spark = new SparkMD5();
-    await Promise.all(
-      fileChunks.map(
-        (n) =>
-          new Promise<void>((resolve) => {
-            const reader = new FileReader();
-            reader.readAsArrayBuffer(n.chunk);
-            reader.onload = (e: any) => {
-              console.log(111);
-
-              spark.append(e.target.result);
-              resolve();
-            };
-          }),
-      ),
-    );
-    return spark.end();
   };
   // 上传分割后的小文件
   const uploadChunks = async () => {
@@ -125,21 +87,16 @@ const Upload = ({ size = SIZE }: IProps) => {
     await Promise.all(uploadList);
     // await requsetSchedule.addRequest(uploadList);
   };
-  // 合并切片
-  const mergeChunks = (filename: string) =>
-    request({
-      url: 'http://localhost:3000/merge',
-      data: JSON.stringify({ filename, size }),
-      headers: { 'content-type': 'application/json' },
-    });
   // 自定义上传
   const handleCustomRequest = async ({ file, onSuccess, onError }: any) => {
     await uploadChunks();
     // 文件扩展名
-    const ext = file.name.split('.')[file.name.split('.').length - 1];
-    const filename = fileChunks[0].hash + '.' + ext;
+    const { filename, ext } = getFileInfo(file.name);
+    const fileHash = fileChunks[0].hash;
     // 上传完所有切片后，发送请求通知服务端
-    const res = await mergeChunks(filename);
+    const res = await mergeChunks(filename, ext, fileHash, size);
+    // 更新已上传列表
+    handleGetUploadedFiles();
     if (res.code === 200) {
       message.success('上传成功');
       onSuccess();
@@ -147,40 +104,42 @@ const Upload = ({ size = SIZE }: IProps) => {
       onError();
     }
   };
-  const handlePause = (e: any) => {
+  const handlePause = () => {
     requestList.forEach(({ xhr }) => xhr.abort());
     requestList.length = 0;
   };
-  // 进度条表格
-  const columns = [
-    {
-      title: '文件切片名称',
-      dataIndex: 'hash',
-      key: 'hash',
-      render: (hash: string, record: FileChunkType) => hash + '-' + record.index,
-    },
-    {
-      title: '大小（MB）',
-      dataIndex: 'size',
-      key: 'size',
-      render: (size: number) => parseInt(String(size / 1000000)),
-    },
-    {
-      title: '进度',
-      dataIndex: 'percentage',
-      key: 'percentage',
-      render: (percentage: number) => <Progress percent={percentage} />,
-    },
-  ];
-
+  const handleGetUploadedFiles = async () => {
+    const res = await getUploadedFiles();
+    setFileList(res);
+  };
+  const handleClear = async () => {
+    await clearUploadedFiles();
+    setFileList([]);
+  };
+  const handleRemove = async (file: any) => {
+    const { ext } = getFileInfo(file.name);
+    await removeFile(file.uid + ext);
+    handleGetUploadedFiles();
+  };
+  useEffect(() => {
+    handleGetUploadedFiles();
+  }, []);
   return (
-    <div>
-      <AntdUpload beforeUpload={beforeUpload} customRequest={handleCustomRequest}>
-        <Button icon={<UploadOutlined />}>点击上传</Button>
-      </AntdUpload>
-      <Button onClick={handlePause}>暂停上传</Button>
-      <Table columns={columns} dataSource={fileChunks} pagination={false} />
-    </div>
+    <>
+      <Space direction="vertical">
+        <AntdUpload
+          fileList={fileList}
+          beforeUpload={beforeUpload}
+          customRequest={handleCustomRequest}
+          onRemove={handleRemove}
+        >
+          <Button icon={<UploadOutlined />}>点击上传</Button>
+        </AntdUpload>
+        <Button onClick={handlePause}>暂停上传</Button>
+        <Button onClick={handleClear}>清空已上传文件</Button>
+      </Space>
+      <Table rowKey="id" columns={columns} dataSource={fileChunks} pagination={false} />
+    </>
   );
 };
 
